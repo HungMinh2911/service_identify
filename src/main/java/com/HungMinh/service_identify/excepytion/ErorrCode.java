@@ -4,7 +4,9 @@ public enum ErorrCode {
     UN_Loi( 9999,  "User Loi"),
     USER_EXISTED( 1002,  "User existed"),
     VALID_CHECK (1003,"Toi thieu 8 ki tu"),
-    KO_THAY(2000,"Ko thay hang so ")
+    KO_THAY(2000,"Ko thay hang so "),
+    USER_NOT_EXISTED (1005, "Khong tim thay user"),
+    UNAUTHENTICATED (1006,"UNAUTHENTICATED");
     ;
 
     ErorrCode(int code, String message) {

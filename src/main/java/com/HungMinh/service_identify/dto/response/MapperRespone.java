@@ -1,24 +1,17 @@
-package com.HungMinh.service_identify.entity;
+package com.HungMinh.service_identify.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
-// Đây là nơi để các class ánh xạ trực tiếp với bảng trong database (JPA Entity).
-@Entity
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+public class MapperRespone {
     String id;
     String username;
     String password;

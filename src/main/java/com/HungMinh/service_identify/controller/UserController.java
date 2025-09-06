@@ -3,7 +3,9 @@ package com.HungMinh.service_identify.controller;
 import com.HungMinh.service_identify.dto.request.APIResponse;
 import com.HungMinh.service_identify.dto.request.UserCreationRequest;
 import com.HungMinh.service_identify.dto.request.UserUpdateRequest;
+import com.HungMinh.service_identify.dto.response.MapperRespone;
 import com.HungMinh.service_identify.entity.User;
+import com.HungMinh.service_identify.mapper.UserMapper;
 import com.HungMinh.service_identify.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +24,7 @@ public class UserController {
     @Autowired
     // nếu ko viêt thì phải viết  UserService userService = new UserService();
     private UserService userService;
-
+    private UserMapper userMapper;
     @PostMapping
     // @RequestBody  dùng để lấy dữ liệu từ phần thân (body) của HTTP request và chuyển đổi nó thành một đối tượng Java.
     // nếu ko có spring ko bt lấy dữ liệu từ body request
@@ -37,14 +39,14 @@ public class UserController {
         return  userService.getUsers();
     }
     @GetMapping("/{userId}")
-    User getUser(@PathVariable("userId") String userId){
+    MapperRespone getUser(@PathVariable("userId") String userId){
         return userService.getUser(userId);
     }
 
     @PutMapping("/{userId}")
     // @PathVariable
     //  lấy dữ liệu từ đường dẫn URL (path) mà client gửi lên.
-    User updateUser(@PathVariable String userId,@RequestBody UserUpdateRequest request){
+    MapperRespone updateUser(@PathVariable String userId,@RequestBody UserUpdateRequest request){
         return userService.updateUser(userId,request);
 
     }

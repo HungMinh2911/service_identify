@@ -6,20 +6,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
 @ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHander {
 
     @ExceptionHandler(value = Exception.class)
-//    ResponseEntity<String> handlingRuntimeException1(RuntimeException exception){
-//        return ResponseEntity.badRequest().body(exception.getMessage());
-//    }
+    ResponseEntity<String> handlingRuntimeException1(RuntimeException exception){
+        return ResponseEntity.badRequest().body(exception.getMessage());
+  }
 
-    ResponseEntity<APIResponse> handlingRuntimeException2(RuntimeException exception){
-        APIResponse apiResponse = new APIResponse();
-        apiResponse.setCode(ErorrCode.UN_Loi.getCode());
-        apiResponse.setMessage(ErorrCode.UN_Loi.getMessage());
-        return ResponseEntity.badRequest().body(apiResponse);
-    }
+//    ResponseEntity<APIResponse> handlingRuntimeException2(RuntimeException exception){
+//        APIResponse apiResponse = new APIResponse();
+//        apiResponse.setCode(ErorrCode.UN_Loi.getCode());
+//        apiResponse.setMessage(ErorrCode.UN_Loi.getMessage());
+//        return ResponseEntity.badRequest().body(apiResponse);
+//    }
     @ExceptionHandler(value = AppException.class)
     ResponseEntity<APIResponse> handlingAppException(AppException exception){
         ErorrCode erorrCode = exception.getErorrCode();

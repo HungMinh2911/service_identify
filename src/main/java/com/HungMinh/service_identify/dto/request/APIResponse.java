@@ -11,11 +11,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL) // chỉ đưa những field khác null vào JSON.
 public class APIResponse <T> {
-     int code = 1000 ;
+     int code = 10001 ;
      String message;
      T result;
-
-
-
 
 }
