@@ -4,6 +4,7 @@ import com.HungMinh.service_identify.dto.request.AuthenticationResquest;
 import com.HungMinh.service_identify.dto.request.IntrospectResquest;
 import com.HungMinh.service_identify.dto.response.AuthenticationReponse;
 import com.HungMinh.service_identify.dto.response.IntrospectReponse;
+import com.HungMinh.service_identify.entity.User;
 import com.HungMinh.service_identify.excepytion.AppException;
 import com.HungMinh.service_identify.excepytion.ErorrCode;
 import com.HungMinh.service_identify.repository.UserRepository;
@@ -21,11 +22,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collection;
 import java.util.Date;
+import java.util.StringJoiner;
 
 @Slf4j
 @Service
@@ -56,11 +60,12 @@ public class AuthenticationServer {
         var verified = signedJWT.verify(verifier);
         // expotyTime.after((new Date()))
         return  IntrospectReponse.builder()
-                .valid( verified   ) // tokencon hay het han
+                .valid(verified) // tokencon hay het han
                 .build();
 
     }
-    public AuthenticationReponse authenticate (AuthenticationResquest authenticationResquest) {
+    public AuthenticationReponse authenticate (AuthenticationResquest authenticationResquest) throws JOSEException {
+
         var user = userRepository.findByUsername(authenticationResquest.getUsername())
                 .orElseThrow(() -> new AppException(ErorrCode.USER_NOT_EXISTED));
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
@@ -68,47 +73,45 @@ public class AuthenticationServer {
         if (!authenticated)
             throw  new AppException(ErorrCode.UNAUTHENTICATED);
 
-        var token = generateToken(authenticationResquest.getUsername());
+        var token = generateToken(user);
 
         return AuthenticationReponse.builder()
                 .token(token)
                 .authenticated(true)
                 .build();
     }
-    private String generateToken(String username)  {
-        // 1) tap header voi thuat toan ky HS512
-        JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
-        // 2) PayLoad (JWT Claims ) : nội dung mang thông tin người dùng + thời hạn
+    private String generateToken(User user) throws JOSEException {
+        // 1) tao header voi thuat toan HS512
+        JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
+        // 2) noi dung mang thong tin nguoi dung + thoi han
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(username) // định danh chủ thể
-                .issuer("devteria.com") // bên phát hành token
-                .issueTime(new Date()) // thời điểm phát hành
+                .subject(user.getUsername()) // dinh danh chu the
+                .issuer("HungMinh.com") // ben phan hanh token
+                .issueTime(new Date()) // thoi diem phat hanh
                 .expirationTime(new Date(
-                        Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()
-                )) // thời điểm hết hạn
-                .claim("customClaim","Custom") // tùy chọn
+                        Instant.now().plus(1,ChronoUnit.HOURS).toEpochMilli()
+                )) // thoi diem het han
+                .claim("scope",builScope(user))
                 .build();
-
-        // 3) đóng gói payload vào JWSObject
+        // toJSONObject() là cầu nối từ thế giới Java (Map) sang thế giới JSON (chuẩn Internet).
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
 
-        JWSObject jwsObject = new JWSObject(header,payload);
 
-        // 4) ký token bằng HMAC với khóa bí mật
-        try {
-            // Dùng để ký (sign) JWT bằng thuật toán HMAC
-            // Đây là bước ký (sign) JWT.
-            //Nó sẽ lấy:
-            //Header (ví dụ: { "alg": "HS512", "typ": "JWT" })
-            //Payload (claims: sub, exp, issuer...)
-            //→ ghép lại thành chuỗi "header.payload".
-            //Sau đó dùng thuật toán HMAC-SHA512 + SIGNER_KEY để tạo chữ ký số (signature).
-            jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
-            return jwsObject.serialize(); // trả về chuỗi JWT
-        } catch (JOSEException e){
-            log.error("Cannot create token",e);
-            throw new RuntimeException(e);
-        }
+        JWSObject jwsObject = new JWSObject(jwsHeader,payload);
+        // ky tao chu ky so cho token
+       jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
+
+       return jwsObject.serialize();
+
+    }
+    private String builScope (User user){
+        // tao 1 chuoi cach nhau bang dau cach
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        if (!CollectionUtils.isEmpty(user.getRoles()))
+            // Dùng :: để tham chiếu trực tiếp tới method add của stringJoiner.
+            user.getRoles().forEach(stringJoiner::add);
+
+        return stringJoiner.toString();
 
     }
 }

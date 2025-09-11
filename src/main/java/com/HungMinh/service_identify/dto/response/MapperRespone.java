@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -14,10 +15,11 @@ import java.time.LocalDate;
 public class MapperRespone {
     String id;
     String username;
-    String password;
+   // String password;
     String firstName;
     String lastName;
     @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDate dob;
+    Set<String> roles;
 
 }

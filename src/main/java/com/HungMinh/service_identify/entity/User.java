@@ -9,6 +9,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.Set;
+
 // Đây là nơi để các class ánh xạ trực tiếp với bảng trong database (JPA Entity).
 @Entity
 @Data
@@ -26,5 +28,5 @@ public class User {
     String lastName;
     @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDate dob;
-
+    Set<String> roles;
 }

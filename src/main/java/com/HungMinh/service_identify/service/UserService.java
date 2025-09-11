@@ -1,4 +1,5 @@
 package com.HungMinh.service_identify.service;
+import java.util.HashSet;
 import java.util.List;
 
 import com.HungMinh.service_identify.dto.request.APIResponse;
@@ -6,11 +7,13 @@ import com.HungMinh.service_identify.dto.request.UserUpdateRequest;
 import com.HungMinh.service_identify.dto.response.MapperRespone;
 import com.HungMinh.service_identify.entity.User;
 import com.HungMinh.service_identify.dto.request.UserCreationRequest;
+import com.HungMinh.service_identify.enums.Role;
 import com.HungMinh.service_identify.mapper.UserMapper;
 import com.HungMinh.service_identify.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,7 +25,7 @@ public class UserService {
 
     UserRepository userRepository;
     UserMapper userMapper;
-    public User createUser(UserCreationRequest request){
+    public MapperRespone createUser(UserCreationRequest request){
 
 
         if (userRepository.existsByUsername(request.getUsername()))
@@ -30,15 +33,23 @@ public class UserService {
         User user =  userMapper.toUser(request);
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        return userRepository.save(user);
+
+        HashSet<String> rolse = new HashSet<>();
+        rolse.add(Role.USER.name()); // Role.USER.name() sẽ trả về chuỗi "USER"
+
+        user.setRoles(rolse);
+        return userMapper.toMapperRespone(userRepository.save(user));
     }
     public MapperRespone updateUser (String userId, UserUpdateRequest request){
         User user = userRepository.findById(userId).orElseThrow(()-> new RuntimeException("User not found"));
         userMapper.updateUser(user,request);
         return userMapper.toMapperRespone(userRepository.save(user));
     }
-    public List<User> getUsers(){
-        return userRepository.findAll();
+
+    //@PreAuthorize("hasRole('ADMIN')")
+    public List<MapperRespone> getUsers(){
+        List<User> users = userRepository.findAll();
+        return userMapper.toListMapper(users);
 
     }
     public MapperRespone getUser(String id){

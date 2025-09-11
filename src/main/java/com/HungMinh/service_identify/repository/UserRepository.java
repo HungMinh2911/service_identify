@@ -10,6 +10,7 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User,String> {
     boolean existsByUsername (String username);
+    // Optional = hộp bọc một giá trị có thể null.
     Optional<User> findByUsername (String useraname);
 //    Nếu tìm thấy: Optional.of(user).
 //    Nếu không tìm thấy: Optional.empty().

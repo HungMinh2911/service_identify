@@ -8,10 +8,15 @@ import com.HungMinh.service_identify.entity.User;
 import com.HungMinh.service_identify.mapper.UserMapper;
 import com.HungMinh.service_identify.service.UserService;
 import jakarta.validation.Valid;
+import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+@Slf4j
+@Builder
 // Đây là nơi nhận request từ client (API endpoint).
 @RestController
 // @RestController = @Controller + @ResponseBody
@@ -28,15 +33,22 @@ public class UserController {
     @PostMapping
     // @RequestBody  dùng để lấy dữ liệu từ phần thân (body) của HTTP request và chuyển đổi nó thành một đối tượng Java.
     // nếu ko có spring ko bt lấy dữ liệu từ body request
-    APIResponse <User> createUser(@RequestBody @Valid  UserCreationRequest request) {
-        APIResponse<User> T = new APIResponse<>();
+    APIResponse <MapperRespone> createUser(@RequestBody @Valid  UserCreationRequest request) {
+        APIResponse<MapperRespone> T = new APIResponse<>();
         T.setResult(userService.createUser(request));
         return T;
     }
 
     @GetMapping
-    List<User> getUsers(){
-        return  userService.getUsers();
+    APIResponse<List<MapperRespone>> getUsers(){
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        log.info("User name: {}",authentication.getName());
+        authentication.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
+
+        return  APIResponse.<List<MapperRespone>>builder()
+                .result(userService.getUsers())
+                .build();
     }
     @GetMapping("/{userId}")
     MapperRespone getUser(@PathVariable("userId") String userId){
