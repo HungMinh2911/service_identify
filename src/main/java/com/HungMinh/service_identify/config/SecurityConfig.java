@@ -38,15 +38,14 @@ public class SecurityConfig {
                 request ->
                 // Cho phép tất cả mọi người (không cần đăng nhập, không cần token) gọi API POST /users.
                         request.requestMatchers(HttpMethod.POST,PUBLIC_ENDPOINT).permitAll()
-                                .requestMatchers(HttpMethod.GET,"/users")
-                                //.hasAnyAuthority("SCOPE_ADMIN")
-                                .hasRole(Role.ADMIN.name())
-                                .anyRequest().authenticated() // Tất cả các request khác (ngoại trừ POST /users) đều yêu cầu người dùng đã đăng nhập và có JWT token hợp lệ.
+                                .anyRequest().authenticated()// Tất cả các request khác (ngoại trừ POST /users) đều yêu cầu người dùng đã đăng nhập và có JWT token hợp lệ.
                 );
         // .jwt(...) để nói “Token mình nhận là JWT
-
         httpSecurity.oauth2ResourceServer(oauth2 ->
-                oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder()))
+                oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder())
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                        .authenticationEntryPoint(new JwtAuthenticationEntrypoint())
+                //Spring Security phát hiện request chưa login hoặc token không hợp lệ, nó sẽ không cho vào Controller,
                 );
         //  csrf  là cơ chế bảo vệ chống tấn công CSRF
         // gọi hàm disable() để tắt CSRF protection.

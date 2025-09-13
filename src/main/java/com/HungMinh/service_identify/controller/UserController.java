@@ -69,4 +69,11 @@ public class UserController {
         return "User has been deleted";
     }
 
+    @GetMapping("/Myinfo")
+    APIResponse<MapperRespone> getMyinfo(){
+        MapperRespone mapperRespone = userService.Myinfo();
+        return APIResponse.<MapperRespone>builder()
+                .result(mapperRespone)
+                .build();
+    }
 }

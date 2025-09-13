@@ -3,6 +3,7 @@ package com.HungMinh.service_identify.excepytion;
 
 import com.HungMinh.service_identify.dto.request.APIResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -30,13 +31,25 @@ public class GlobalExceptionHander {
         APIResponse t = new APIResponse();
         t.setCode(erorrCode.getCode());
         t.setMessage(erorrCode.getMessage());
-        return ResponseEntity.badRequest().body(t);
+        return ResponseEntity
+                .status(erorrCode.getHttpStatusCode())
+                .body(t);
     }
+    @ExceptionHandler(value = AccessDeniedException.class)
+    ResponseEntity<APIResponse> handlingAccessDeniedEception(AccessDeniedException accessDeniedException){
+        ErorrCode erorrCode = ErorrCode.UNAUTHORTIZED;
 
+        return ResponseEntity.status(erorrCode.getHttpStatusCode()).body(
+                APIResponse.builder()
+                        .code(erorrCode.getCode())
+                        .message(erorrCode.getMessage())
+                        .build()
+        );
+    }
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     ResponseEntity<APIResponse> handlingValidation(MethodArgumentNotValidException  exception){
         String enumKey = exception.getFieldError().getDefaultMessage();
-        ErorrCode erorrCode = ErorrCode.KO_THAY;
+        ErorrCode erorrCode = ErorrCode.USER_NOT_EXISTED;
 
         try{
             erorrCode = ErorrCode.valueOf(enumKey);

@@ -52,15 +52,15 @@ public class AuthenticationServer {
         // tach chuoi token tu do co the signedJWT.getHeader() signedJWT.getJWTClaimsSet() signedJWT.getSignature()
         SignedJWT signedJWT = SignedJWT.parse(token);
 
-        //Date expotyTime= signedJWT.getJWTClaimsSet().getExpirationTime();
+        Date expotyTime= signedJWT.getJWTClaimsSet().getExpirationTime();
 
         // Kiểm tra chữ ký của token có hợp lệ không.
         // Lấy chữ ký trong token (phần sau cùng, sau dấu .).
         //Dùng SIGNER_KEY để tính lại chữ ký từ header + payload
         var verified = signedJWT.verify(verifier);
-        // expotyTime.after((new Date()))
+
         return  IntrospectReponse.builder()
-                .valid(verified) // tokencon hay het han
+                .valid(verified &&  expotyTime.after((new Date()))) // tokencon hay het han
                 .build();
 
     }
@@ -107,9 +107,9 @@ public class AuthenticationServer {
     private String builScope (User user){
         // tao 1 chuoi cach nhau bang dau cach
         StringJoiner stringJoiner = new StringJoiner(" ");
-        if (!CollectionUtils.isEmpty(user.getRoles()))
+        //if (!CollectionUtils.isEmpty(user.getRoles()))
             // Dùng :: để tham chiếu trực tiếp tới method add của stringJoiner.
-            user.getRoles().forEach(stringJoiner::add);
+            //user.getRoles().forEach(stringJoiner::add);
 
         return stringJoiner.toString();
 

@@ -1,5 +1,6 @@
 package com.HungMinh.service_identify.dto.response;
 
+import com.HungMinh.service_identify.entity.Role;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -20,6 +21,6 @@ public class MapperRespone {
     String lastName;
     @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDate dob;
-    Set<String> roles;
+    Set<Role> roles;
 
 }
